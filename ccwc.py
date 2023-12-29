@@ -1,41 +1,50 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 
+def count_bytes(file_content):
+    return len(file_content)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Simple command line wc tool.")
-    parser.add_argument("filename", help="file name")
-    parser.add_argument("--c", action="store_true", help="Number of bytes in file")
-    parser.add_argument("--l", action="store_true", help="Number of lines in file")
-    parser.add_argument("--w", action="store_true", help="Number of words in file")
-    parser.add_argument("--m", action="store_true", help="Number of chars in file")
+def count_lines(file_content):
+    return file_content.count('\n') + 1
+
+def count_words(file_content):
+    return len(file_content.split())
+
+def count_characters(file_content):
+    return len(file_content)
+
+def main():
+    parser = argparse.ArgumentParser(description='A simple version of wc command')
+    parser.add_argument('filename', nargs='?', type=str, default=None, help='Name of the file or use stdin if not specified')
+    parser.add_argument('-c', '--bytes', action='store_true', help='Print the byte counts')
+    parser.add_argument('-l', '--lines', action='store_true', help='Print the newline counts')
+    parser.add_argument('-w', '--words', action='store_true', help='Print the word counts')
+    parser.add_argument('-m', '--characters', action='store_true', help='Print the character counts')
 
     args = parser.parse_args()
 
-    # number of words and lines
-    num_words = 0
-    num_lines = 0
-    with open(f'/Users/joshlin/Documents/wc_tool/{args.filename}','r') as file:
-        for line in file:
-            num_words += len(line.split())
-            num_lines += 1
-
-    # number of bytes
-    file_stats = os.stat(f'/Users/joshlin/Documents/wc_tool/{args.filename}')
-    num_bytes = file_stats.st_size
-
-    if not args.c and not args.l and not args.w and not args.m:
-        print(num_lines, num_words, num_bytes, args.filename, end=" ", flush=True)
+    if args.filename:
+        with open(args.filename, 'r') as file:
+            file_content = file.read()
     else:
-        if args.c:
-            print(num_bytes, end=" ", flush=True)
-        if args.m:
-            print(num_bytes, end=" ", flush=True)
-        if args.l:
-            print(num_lines, end=" ", flush=True)
-        if args.w:
-            print(num_words, end=" ", flush=True)
-        print(args.filename, end=" ", flush=True)
-    
+        print("Please provide path to file")
+        return
+
+    num_lines, num_words, num_bytes, num_char = count_bytes(file_content), count_words(file_content), count_words(file_content), count_characters(file_content)
+
+    if not any([args.bytes, args.lines, args.words, args.characters]):
+        print(num_lines, num_words, num_bytes, args.filename, end=" ")
+    else:
+        if args.bytes:
+            print(num_bytes, end=" ")
+        if args.characters:
+            print(num_char, end=" ")
+        if args.lines:
+            print(num_lines, end=" ")
+        if args.words:
+            print(num_words, end=" ")
+        print(args.filename, end=" ")
+
+if __name__ == "__main__":
+    main()
